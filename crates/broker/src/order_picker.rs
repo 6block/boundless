@@ -179,7 +179,7 @@ where
 
             match pricing_result {
                 Ok(Lock { total_cycles, target_timestamp_secs, expiry_secs }) => {
-                    order.total_cycles = Some(total_cycles);
+                    order.total_cycles = if total_cycles == 0 { None } else { Some(total_cycles) };
                     order.target_timestamp = Some(target_timestamp_secs);
                     order.expire_timestamp = Some(expiry_secs);
 
@@ -415,13 +415,13 @@ where
          if skip_preflight {
             if lock_expired {
                 return Ok(ProveAfterLockExpire {
-                    total_cycles: None,
+                    total_cycles: 0,
                     lock_expire_timestamp_secs: lock_expiration,
                     expiry_secs: order_expiration,
                 });
             } else {
                 return Ok(Lock {
-                    total_cycles: None,
+                    total_cycles: 0,
                     target_timestamp_secs: 0,
                     expiry_secs: expiration,
                 });
