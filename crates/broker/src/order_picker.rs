@@ -402,10 +402,31 @@ where
             return Ok(Skip);
         }
 
-        let (max_mcycle_limit, peak_prove_khz) = {
+        let (max_mcycle_limit, peak_prove_khz, skip_preflight) = {
             let config = self.config.lock_all().context("Failed to read config")?;
-            (config.market.max_mcycle_limit, config.market.peak_prove_khz)
+            let skip_preflight =
+                if let Some(skip_preflights) = config.market.skip_preflight_ids.as_ref() {
+                    skip_preflights.contains(&order.request.requirements.imageId)
+                } else {
+                    false
+                };
+            (config.market.max_mcycle_limit, config.market.peak_prove_khz, skip_preflight)
         };
+         if skip_preflight {
+            if lock_expired {
+                return Ok(ProveAfterLockExpire {
+                    total_cycles: None,
+                    lock_expire_timestamp_secs: lock_expiration,
+                    expiry_secs: order_expiration,
+                });
+            } else {
+                return Ok(Lock {
+                    total_cycles: None,
+                    target_timestamp_secs: 0,
+                    expiry_secs: expiration,
+                });
+            }
+        }
 
         // TODO: Move URI handling like this into the prover impls
         let image_id = upload_image_uri(&self.prover, &order.request, &self.config)

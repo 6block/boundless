@@ -155,6 +155,8 @@ pub struct MarketConf {
     ///
     /// Requests that require a higher stake than this will not be considered.
     pub max_stake: String,
+    /// Optional list of image IDs for which preflight should be skipped.
+    pub skip_preflight_ids: Option<Vec<B256>>,
     /// Optional allow list for customer address.
     ///
     /// If enabled, all requests from clients not in the allow list are skipped.
@@ -258,6 +260,7 @@ impl Default for MarketConf {
             min_deadline: 120, // 2 mins
             lookback_blocks: 100,
             max_stake: "0.1".to_string(),
+            skip_preflight_ids: None,
             allow_client_addresses: None,
             deny_requestor_addresses: None,
             lockin_priority_gas: None,
