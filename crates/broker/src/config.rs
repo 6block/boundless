@@ -18,8 +18,10 @@ use tokio::{
     task::JoinHandle,
     time::{timeout, Duration},
 };
+use alloy::primitives::B256;
 
 use crate::{errors::CodedError, impl_coded_debug};
+
 
 mod defaults {
     pub const fn max_journal_bytes() -> usize {
